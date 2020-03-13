@@ -4,7 +4,7 @@ const Posts = require('../posts/postDb.js');
 
 const router = express.Router();
 
-router.post('/', (req, res) => {
+router.post('/', validateUser, (req, res) => {
   Users.insert(req.body)
   .then( users => {
     res.status(200).json(users)
@@ -14,11 +14,15 @@ router.post('/', (req, res) => {
   })
 });
 
-router.post('/:id/posts', (req, res) => {
-  const changes = req.body
-  Users.update(req.params.id, changes)  
-  .then( users => {
-    res.status(200).json(users)
+router.post('/:id/posts', validatePost, (req, res) => {
+  const post = req.body
+  console.log(req.body)
+  Posts.insert(post)  
+  .then( posts => {
+    res.status(200).json(posts)
+  }) 
+  .catch( error => {
+    res.status(500).json({"message": "the post could not be added"})
   })
 });
 
@@ -104,15 +108,27 @@ function validateUserId(req, res, next) {
     } else {
       res.status(400).json({ "message": "invalid user id" })
     }
-
   })
 }
 
 function validateUser(req, res, next) {
-  // do your magic!
+  if(!req.body){
+    res.status(400).json({ "message": "missing user data" })
+  } else if((req.body).hasOwnProperty("name")) {
+    next();
+  } else {
+    res.status(400).json({"message": "missing required name field"})
+  }
 }
 
 function validatePost(req, res, next) {
+  if(!req.body){
+    res.status(400).json({"message": "missing post data"})
+  } else if((req.body).hasOwnProperty("text")) {
+    next();
+  } else {
+    res.status(400).json({"message": "missing required text field"})
+  }
 }
 
 module.exports = router;

@@ -5,8 +5,9 @@ const server = express();
 
 //use it
 server.use(express.json());
-// server.use(logger);
+server.use(logger);
 server.use('/api/users', userRouter); 
+server.use('/api/posts', postRouter);
 
 server.get('/', logger, (req, res) => {
   console.log("req name is:", req.name)
